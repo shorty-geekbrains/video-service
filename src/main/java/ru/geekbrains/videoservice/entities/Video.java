@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "videos")
+@Table(schema = "shorty", name = "video")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -26,15 +26,13 @@ public class Video {
     private String link;
 
     @CreationTimestamp
-    private LocalDateTime dateUpload;
+    private LocalDateTime uploadDate;
 
     private Long ratingId;
 
-    private Long userId;
+    private Long clientId;
 
     private Boolean isAvailable;
-
-    private Long commentId;
 
     private String description;
 }
