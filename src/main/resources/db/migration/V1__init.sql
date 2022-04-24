@@ -1,81 +1,77 @@
-create schema shorty_video_service;
+create schema if not exists shorty;
 
-create table shorty_video_service.client_role
+create table if not exists shorty."role"
 (
-    role_id             bigserial  not null,
-    role_name           char(50) not null,
-    constraint PK_53 primary key ( role_id )
+    "id"                bigserial primary key,
+    "name"              char(50) not null
 );
 
-create table shorty_video_service.client
+create table if not exists shorty.client
 (
-    client_id           bigserial not null,
-    client_name         char(50) not null,
+    "id"                bigserial primary key,
+    "name"              char(50) not null,
     role_id             bigint   not null,
-    user_second_name    char(50) not null,
+    second_name         char(50) not null,
     age                 int not null,
     sex                 boolean not null,
-    user_password       char(50) not null,
-    user_photo          char(255) not null,
-    constraint PK_44 primary key ( client_id ),
-    constraint FK_58 foreign key ( role_id ) references shorty_video_service.client_role ( role_id )
+    "password"          char(50) not null,
+    photo               char(255) not null,
+    constraint fk_role foreign key (role_id) references shorty."role" ("id")
 );
 
-create table shorty_video_service.video_rating
-(
-    rating_id           bigserial not null,
-    like_counter        int not null,
-    dislike_counter     int not null,
-    views_counter       int  not null,
-    constraint PK_16 primary key ( rating_id )
-);
-
-create table shorty_video_service.video
-(
-    video_id            bigserial not null,
-    video_name          char(50)  not null,
-    rating_id           bigint       not null,
-    client_id           bigint       not null,
-    upload_date         timestamp not null,
-    is_available        boolean   not null,
-    video_description   char(255) not null,
-    constraint PK_6 primary key (video_id),
-    constraint FK_67 foreign key (client_id) references shorty_video_service.client (client_id),
-    constraint FK_94 foreign key (rating_id) references shorty_video_service.video_rating (rating_id)
-);
-
-create index FK_69 on shorty_video_service.video
-(
-     client_id
-);
-
-create index FK_96 on shorty_video_service.video
-(
-     rating_id
-);
-
-create index FK_60 on shorty_video_service.client
+create index if not exists client_tbl_role_id_idx on shorty.client
 (
      role_id
 );
 
-create table shorty_video_service.video_comment
+create table if not exists shorty.rating
 (
-    comment_id          bigserial not null,
-    comment_text        char(1000) not null,
-    client_id           bigint not null,
-    video_id            bigint  not null,
-    constraint PK_72 primary key ( comment_id ),
-    constraint FK_107 foreign key ( client_id ) references shorty_video_service.client ( client_id ),
-    constraint FK_86 foreign key ( video_id ) references shorty_video_service.video ( video_id )
+    "id"                bigserial primary key,
+    like_counter        int not null,
+    dislike_counter     int not null,
+    views_counter       int not null
 );
 
-create index FK_109 on shorty_video_service.video_comment
+create table if not exists shorty.video
+(
+    "id"                bigserial primary key,
+    "name"              char(50) not null,
+    "link"              varchar(255),
+    upload_date         timestamp not null default now(),
+    rating_id           bigint, -- not null
+    client_id           bigint, -- not null
+    is_available        boolean not null,
+    description         char(255) not null,
+    constraint fk_client foreign key (client_id) references shorty.client ("id"),
+    constraint fk_rating foreign key (rating_id) references shorty.rating ("id")
+);
+
+create index if not exists video_tbl_client_id_idx on shorty.video
 (
      client_id
 );
 
-create index FK_90 on shorty_video_service.video_comment
+create index if not exists video_tbl_rating_id_idx on shorty.video
+(
+     rating_id
+);
+
+create table if not exists shorty."comment"
+(
+    "id"                bigserial primary key,
+    comment_text        char(1000) not null,
+    client_id           bigint not null,
+    video_id            bigint  not null,
+    constraint fk_client foreign key (client_id) references shorty.client ("id"),
+    constraint fk_video foreign key (video_id) references shorty.video ("id")
+);
+
+create index if not exists comment_tbl_client_id_idx on shorty."comment"
+(
+     client_id
+);
+
+create index if not exists comment_tbl_video_id_idx on shorty."comment"
 (
      video_id
 );
