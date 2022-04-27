@@ -6,6 +6,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.geekbrains.videoservice.entities.Video;
+import ru.geekbrains.videoservice.exceptions.IncorrectLinkException;
 import ru.geekbrains.videoservice.exceptions.VideoNotFoundException;
 import ru.geekbrains.videoservice.repositories.VideoRepository;
 
@@ -23,9 +24,13 @@ public class StreamingService {
 
     public Mono<Resource> getVideo(String link) {
 
+        if (isEmpty(link)) {
+            throw new IncorrectLinkException(String.format("Incorrect link=%s", link));
+        }
+
         Video video = videoRepository.findByLink(link);
 
-        if (isEmpty(link) || isNull(video)) {
+        if (isNull(video)) {
             throw new VideoNotFoundException(String.format("No video found by provided link=%s", link));
         }
 
