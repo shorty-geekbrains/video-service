@@ -37,7 +37,7 @@ public class VideoServiceTest {
         String link = "test link";
         Pageable pageable = PageRequest.of(0, 1);
         List<Video> videos = Collections.singletonList(Video.builder().link(link).build());
-        Page<Video> videoPage = new PageImpl<>(videos, pageable, 1L);
+        Page<Video> videoPage = new PageImpl<>(videos);
 
         when(videoRepository.findAll(pageable)).thenReturn(videoPage);
 

@@ -17,9 +17,11 @@ import ru.geekbrains.videoservice.services.VideoService;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -36,7 +38,8 @@ public class VideoControllerTest {
     @Test
     public void testGetPageOfLinks() {
         //arrange
-        List<LinkDto> list = Collections.singletonList(new LinkDto("1"));
+        String link = "link link link";
+        List<LinkDto> list = Collections.singletonList(new LinkDto(link));
         Page<LinkDto> page = new PageImpl<>(list);
 
         when(videoService.getPageOfLinks(any())).thenReturn(page);
@@ -44,7 +47,9 @@ public class VideoControllerTest {
         //act and assert
         mockMvc.perform(get("/video/list")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"link\": \"1\"}"))
+                        .content("{\"link\": \"test\"}"))
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].link").value(link))
                 .andExpect(status().isOk());
     }
 }
