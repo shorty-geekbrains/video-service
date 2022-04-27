@@ -6,4 +6,6 @@ import ru.geekbrains.videoservice.entities.Video;
 
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
+
+    Video findByLink(String link);
 }

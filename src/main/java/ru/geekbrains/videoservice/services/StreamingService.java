@@ -10,21 +10,26 @@ import ru.geekbrains.videoservice.exceptions.VideoNotFoundException;
 import ru.geekbrains.videoservice.repositories.VideoRepository;
 
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.substringAfter;
 
 @Service
 @RequiredArgsConstructor
 public class StreamingService {
+    private static final String PREFIX = "video-service/video/";
+
     private final VideoRepository videoRepository;
     private final ResourceLoader resourceLoader;
 
-    public Mono<Resource> getVideo(Long id) {
-        String path = videoRepository.findById(id)
-                .map(Video::getLink)
-                .orElse(null);
+    public Mono<Resource> getVideo(String link) {
 
-        if (isNull(path)) {
-            throw new VideoNotFoundException(String.format("No video found with id=%s", id));
+        Video video = videoRepository.findByLink(link);
+
+        if (isEmpty(link) || isNull(video)) {
+            throw new VideoNotFoundException(String.format("No video found by provided link=%s", link));
         }
+
+        String path = substringAfter(link, PREFIX);
 
         return Mono.fromSupplier(() -> resourceLoader.getResource(path));
     }

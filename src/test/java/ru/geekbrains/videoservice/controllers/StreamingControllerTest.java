@@ -40,7 +40,7 @@ public class StreamingControllerTest {
         webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/video")
-                        .queryParam("id", "1")
+                        .queryParam("link", "1")
                         .build())
                 .exchange()
                 .expectStatus().isOk()

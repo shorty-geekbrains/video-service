@@ -12,11 +12,10 @@ import ru.geekbrains.videoservice.services.StreamingService;
 @RequiredArgsConstructor
 public class StreamingController {
 
-    private final StreamingService service;
+    private final StreamingService streamingService;
 
     @GetMapping(value = "video", produces = "video/mp4")
-    public Mono<Resource> getVideo(@RequestParam Long id) {
-        return service.getVideo(id);
+    public Mono<Resource> getVideo(@RequestParam String link) {
+        return streamingService.getVideo(link);
     }
-
 }
