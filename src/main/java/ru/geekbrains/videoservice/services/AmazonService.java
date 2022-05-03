@@ -19,11 +19,11 @@ public class AmazonService {
 
     private final AmazonConfig amazonConfig;
 
-    public List getAllFiles() {
-        List filesNames = new ArrayList();
+    public List<String> getAllFiles() {
+        List<String> filesNames = new ArrayList();
         List<S3ObjectSummary> files = amazonConfig.getS3().listObjects(Const.BUCKET).getObjectSummaries();
         for (S3ObjectSummary list : files) {
-            filesNames.add(list.getKey());
+            filesNames.add("net/" + list.getKey());
         }
         return filesNames;
     }
