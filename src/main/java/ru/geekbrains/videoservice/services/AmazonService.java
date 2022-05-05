@@ -44,7 +44,7 @@ public class AmazonService {
         List<String> filesNames = new ArrayList();
         List<S3ObjectSummary> files = s3.listObjects(AmazonConst.BUCKET).getObjectSummaries();
         for (S3ObjectSummary list : files) {
-            filesNames.add("https://shorty.storage.yandexcloud.net/" + list.getKey());
+            filesNames.add(AmazonConst.STORAGE_URL + list.getKey());
         }
         return filesNames;
     }

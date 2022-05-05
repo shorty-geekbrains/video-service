@@ -10,4 +10,5 @@ public class AmazonConst {
     public static final String BUCKET = "shorty";
     public static final String SERVER_ENDPOINT = "storage.yandexcloud.net";
     public static final String REGION = "ru-central1";
+    public static final String STORAGE_URL = "https://shorty.storage.yandexcloud.net/";
 }
