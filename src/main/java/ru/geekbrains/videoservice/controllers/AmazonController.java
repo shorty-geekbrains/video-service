@@ -1,10 +1,12 @@
 package ru.geekbrains.videoservice.controllers;
 
+import io.github.techgnious.exception.VideoException;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.geekbrains.videoservice.services.AmazonService;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -24,7 +26,11 @@ public class AmazonController {
     @PostMapping("/video/save")
     public void storeFile(@RequestParam(value = "file") MultipartFile file) {
         new Thread(() -> {
-            amazonService.uploadFile(file);
+            try {
+                amazonService.uploadFile(file);
+            } catch (IOException | VideoException e) {
+                e.printStackTrace();
+            }
         }).start();
     }
 
