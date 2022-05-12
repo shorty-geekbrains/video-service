@@ -1,59 +1,65 @@
 package ru.geekbrains.videoservice.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.geekbrains.videoservice.entities.Video;
 import ru.geekbrains.videoservice.entities.VideoRating;
+import ru.geekbrains.videoservice.exception.VideoNotFoundException;
 import ru.geekbrains.videoservice.exception.VideoRatingNotFoundException;
 import ru.geekbrains.videoservice.repository.VideoRatingRepository;
-
-import java.util.Optional;
+import ru.geekbrains.videoservice.repository.VideoRepository;
+import java.util.HashSet;
+import java.util.Set;
+import static java.util.Objects.isNull;
 
 
 @Service
+@RequiredArgsConstructor
 public class VideoRatingService {
 
     private final VideoRatingRepository videoRatingRepository;
-
-    @Autowired
-    public VideoRatingService(VideoRatingRepository videoRatingRepository) {
-        this.videoRatingRepository = videoRatingRepository;
-    }
+    private final VideoRepository videoRepository;
+    private final Set<Long> usersEmoji = new HashSet<>();
 
 
-    public VideoRating createLike(Long ratingId, String username) {
-        VideoRating videoRating = videoRatingRepository.findById(ratingId)
-                .orElseThrow(() -> new VideoRatingNotFoundException("VideoRating cannot be found"));
+    public VideoRating createEmoji(String link, Long numberEmoji) {
+        Video video = videoRepository.findByLink(link);
+        if (isNull(video)) {
+            throw new VideoNotFoundException(String.format("No video found by provided link=%s", link));
+        }
+        VideoRating videoRating = videoRatingRepository.
+                findById(video.getRatingId()).orElseThrow(()
+                        -> new VideoRatingNotFoundException("VideoRating cannot be found"));
+        if (numberEmoji >= 0) {
 
-        Optional<String> userLiked = videoRating.getLikeUsers()
-                .stream()
-                .filter(u -> u.equals(username)).findAny();
-        if (userLiked.isPresent()) {
-            videoRating.setLikeCounter(videoRating.getLikeCounter() - 1);
-            videoRating.getLikeUsers().remove(username);
+            createLike(video, videoRating);
         } else {
+            createDislike(video, videoRating);
+        }
+
+        return videoRatingRepository.save(videoRating);
+
+    }
+    private void createLike(Video video, VideoRating videoRating) {
+        if (!usersEmoji.contains(video.getClientId())) {
             videoRating.setLikeCounter(videoRating.getLikeCounter() + 1);
-            videoRating.getLikeUsers().add(username);
-        }
-
-        return videoRatingRepository.save(videoRating);
-    }
-
-    public VideoRating createDislike(Long ratingId, String username) {
-        VideoRating videoRating = videoRatingRepository.findById(ratingId)
-                .orElseThrow(() -> new VideoRatingNotFoundException("VideoRating cannot be found"));
-
-        Optional<String> userDisliked = videoRating.getDislikeUsers()
-                .stream()
-                .filter(u -> u.equals(username)).findAny();
-        if (userDisliked.isPresent()) {
-            videoRating.setDislikeCounter(videoRating.getDislikeCounter() - 1);
-            videoRating.getDislikeUsers().remove(username);
+            usersEmoji.add(video.getClientId());
         } else {
-            videoRating.setDislikeCounter(videoRating.getDislikeCounter() + 1);
-            videoRating.getDislikeUsers().add(username);
+            videoRating.setLikeCounter(videoRating.getLikeCounter() - 1);
+            usersEmoji.remove(video.getClientId());
         }
-        return videoRatingRepository.save(videoRating);
     }
 
+    private void createDislike(Video video, VideoRating videoRating) {
+        if (!usersEmoji.contains(video.getClientId())) {
+            videoRating.setDislikeCounter(videoRating.getDislikeCounter() + 1);
+            usersEmoji.add(video.getClientId());
+        } else {
+            videoRating.setDislikeCounter(videoRating.getDislikeCounter() - 1);
+            usersEmoji.remove(video.getClientId());
+        }
+    }
 
 }
+
+

@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "video_rating")
+@Table(schema = "shorty",name = "rating")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -18,7 +18,8 @@ import java.util.Set;
 public class VideoRating {
 
     @Id
-    @Column(name = "rating_id")
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "like_counter")
@@ -29,14 +30,4 @@ public class VideoRating {
 
     @Column(name = "views_counter")
     private Long viewsCounter;
-
-    @Column
-    @ElementCollection(targetClass = String.class)
-    private Set<String> likeUsers;
-
-    @Column
-    @ElementCollection(targetClass = String.class)
-    private Set<String> dislikeUsers;
-
-
 }
