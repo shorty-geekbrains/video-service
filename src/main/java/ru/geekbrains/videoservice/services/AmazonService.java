@@ -71,7 +71,7 @@ public class AmazonService {
     }
 
     private File convertMultiPartFileToFile(MultipartFile file) throws IOException, VideoException {
-        File compressedFile = new File(String.valueOf(System.currentTimeMillis()) + ".mp4");
+        File compressedFile = new File(String.valueOf(System.currentTimeMillis()));
         IVCompressor compressor = new IVCompressor();
         byte[] compressed = compressor.reduceVideoSize(file.getBytes(), VideoFormats.MP4, ResizeResolution.R720P);
         try (FileOutputStream fos = new FileOutputStream(compressedFile)) {
