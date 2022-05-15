@@ -26,3 +26,10 @@ cloud:
     credentials:
       access-key: YCAJEMwFoI22gEPhxWrnB3O-N
       secret-key: YCNgEBcZS_g6PWrhWhI2L1bxPfPmKEyx4b_zWQD9
+
+amazon.access-ket: YCAJEMwFoI22gEPhxWrnB3O-N
+amazon.secret-ket: YCNgEBcZS_g6PWrhWhI2L1bxPfPmKEyx4b_zWQD9
+amazon.bucket: shorty
+amazon.server-endpoint: storage.yandexcloud.net
+amazon.region: ru-central1
+amazon.storage-url: https://shorty.storage.yandexcloud.net
