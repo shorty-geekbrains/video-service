@@ -14,6 +14,7 @@ import io.github.techgnious.dto.ResizeResolution;
 import io.github.techgnious.dto.VideoFormats;
 import io.github.techgnious.exception.VideoException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.geekbrains.videoservice.Const.AmazonConst;
 
@@ -74,7 +75,10 @@ public class AmazonService {
     private File convertMultiPartFileToFile(MultipartFile file) throws IOException, VideoException {
         File compressedFile = new File(file.getOriginalFilename());
         IVCompressor compressor = new IVCompressor();
-        byte[] compressed = compressor.reduceVideoSize(file.getBytes(),VideoFormats.MP4,ResizeResolution.R720P);
+        InputStream inputStream = file.getInputStream();
+        byte[] buffer = new byte[inputStream.available()];
+        inputStream.read(buffer);
+        byte[] compressed = compressor.reduceVideoSize(buffer,VideoFormats.MP4,ResizeResolution.R720P);
         try (FileOutputStream fos = new FileOutputStream(compressedFile)) {
             fos.write(compressed);
         } catch (IOException e) {
