@@ -23,7 +23,7 @@ public class AmazonController {
         return amazonService.getAllFiles();
     }
 
-    @PostMapping("/video/save")
+    @PostMapping(value = "/video/save", consumes = "multipart/form-data")
     public void storeFile(@RequestParam(value = "file") MultipartFile file) {
         new Thread(() -> {
             try {

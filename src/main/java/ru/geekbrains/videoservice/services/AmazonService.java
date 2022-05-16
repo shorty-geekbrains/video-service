@@ -10,18 +10,15 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import io.github.techgnious.IVCompressor;
-import io.github.techgnious.dto.ResizeResolution;
-import io.github.techgnious.dto.VideoFormats;
+import io.github.techgnious.dto.*;
 import io.github.techgnious.exception.VideoException;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.geekbrains.videoservice.Const.AmazonConst;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,18 +70,32 @@ public class AmazonService {
     }
 
     private File convertMultiPartFileToFile(MultipartFile file) throws IOException, VideoException {
-        File compressedFile = new File(file.getOriginalFilename());
+        File compressedFile = new File(System.currentTimeMillis() + ".mp4");
+        byte[] bytes = file.getBytes();
         IVCompressor compressor = new IVCompressor();
-        InputStream inputStream = file.getInputStream();
-        byte[] buffer = new byte[inputStream.available()];
-        inputStream.read(buffer);
-        byte[] compressed = compressor.reduceVideoSize(buffer,VideoFormats.MP4,ResizeResolution.R720P);
+        byte[] converted = converter(bytes, FilenameUtils.getExtension(file.getOriginalFilename()));
+        IVSize customRes = new IVSize();
+        customRes.setHeight(720);
+        customRes.setWidth(1280);
+        IVVideoAttributes videoAttribute = new IVVideoAttributes();
+        videoAttribute.setBitRate(1600000);
+        videoAttribute.setSize(customRes);
+        IVAudioAttributes audioAttribute = new IVAudioAttributes();
+        audioAttribute.setBitRate(64000);
+        audioAttribute.setChannels(2);
+        audioAttribute.setSamplingRate(44100);
+        byte[] compressed = compressor.encodeVideoWithAttributes(converted, VideoFormats.MP4, audioAttribute, videoAttribute);
         try (FileOutputStream fos = new FileOutputStream(compressedFile)) {
             fos.write(compressed);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return compressedFile;
+    }
+
+    private byte[] converter(byte[] arr, String extension) throws VideoException {
+        IVCompressor compressor = new IVCompressor();
+        return compressor.convertVideoFormat(arr, VideoFormats.valueOf(extension.toUpperCase()), VideoFormats.MP4);
     }
 
 }
