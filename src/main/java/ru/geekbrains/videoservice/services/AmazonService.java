@@ -10,16 +10,21 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import io.github.techgnious.IVCompressor;
-import io.github.techgnious.dto.*;
+import io.github.techgnious.dto.IVAudioAttributes;
+import io.github.techgnious.dto.IVSize;
+import io.github.techgnious.dto.IVVideoAttributes;
+import io.github.techgnious.dto.VideoFormats;
 import io.github.techgnious.exception.VideoException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.geekbrains.videoservice.Const.AmazonConst;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -79,12 +84,12 @@ public class AmazonService {
         customRes.setHeight(720);
         customRes.setWidth(1280);
         IVVideoAttributes videoAttribute = new IVVideoAttributes();
-        videoAttribute.setBitRate(1600000);
+        videoAttribute.setBitRate(3000000);
         videoAttribute.setSize(customRes);
         IVAudioAttributes audioAttribute = new IVAudioAttributes();
-        audioAttribute.setBitRate(64000);
+        audioAttribute.setBitRate(128000);
         audioAttribute.setChannels(2);
-        audioAttribute.setSamplingRate(44100);
+        audioAttribute.setSamplingRate(48000);
         byte[] compressed = compressor.encodeVideoWithAttributes(converted, VideoFormats.MP4, audioAttribute, videoAttribute);
         try (FileOutputStream fos = new FileOutputStream(compressedFile)) {
             fos.write(compressed);
@@ -95,8 +100,24 @@ public class AmazonService {
     }
 
     private byte[] converter(byte[] arr, String extension) throws VideoException {
+        boolean supported = false;
         IVCompressor compressor = new IVCompressor();
-        return compressor.convertVideoFormat(arr, VideoFormats.valueOf(extension.toUpperCase()), VideoFormats.MP4);
+        List<VideoFormats> videoFormats = new ArrayList<>(EnumSet.allOf(VideoFormats.class));
+        byte[] bytes = new byte[arr.length];
+
+        for (VideoFormats videoFormat : videoFormats) {
+            if (extension.equals(String.valueOf(videoFormat).toLowerCase())) {
+                System.out.println("Upload file with extension " + extension);
+                supported = true;
+            }
+        }
+        if (supported) {
+            bytes = compressor.convertVideoFormat(arr, VideoFormats.valueOf(extension.toUpperCase()), VideoFormats.MP4);
+        } else {
+            System.err.println("File extension is unsupported");
+        }
+
+        return bytes;
     }
 
 }
