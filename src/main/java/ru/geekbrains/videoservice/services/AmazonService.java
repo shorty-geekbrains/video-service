@@ -15,10 +15,11 @@ import io.github.techgnious.dto.IVSize;
 import io.github.techgnious.dto.IVVideoAttributes;
 import io.github.techgnious.dto.VideoFormats;
 import io.github.techgnious.exception.VideoException;
+import me.tongfei.progressbar.ProgressBar;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.geekbrains.videoservice.Const.AmazonConst;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,58 +35,57 @@ import java.util.List;
 @Service
 public class AmazonService {
 
-//    @Value("${amazon.access-key}")
-//    private String accessKey;
-//    @Value("${amazon.secret-key}")
-//    private String secretKey;
-//    @Value("${amazon.server-endpoint}")
-//    private String serverEndpoint;
-//    @Value("${amazon.region}")
-//    private String region;
-//    @Value("${amazon.bucket}")
-//    private String bucket;
-//    @Value("${amazon.storage-url")
-//    private String storageUrl;
+    @Value("${access-key}")
+    private String accessKey;
+    @Value("${secret-key}")
+    private String secretKey;
+    @Value("${server-endpoint}")
+    private String serverEndpoint;
+    @Value("${region}")
+    private String region;
+    @Value("${bucket}")
+    private String bucket;
+    @Value("${storage-url")
+    private String storageUrl;
 
     AWSCredentials credentials = new BasicAWSCredentials(
-            AmazonConst.ACCESS_KEY,
-            AmazonConst.SECRET_KEY
+            accessKey,
+            secretKey
     );
 
     AmazonS3 s3 = AmazonS3ClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(credentials))
             .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(
-                    AmazonConst.SERVER_ENDPOINT, AmazonConst.REGION)
+                    serverEndpoint, region)
             )
             .build();
 
     public List<String> getAllFiles() {
         List<String> filesNames = new ArrayList<>();
-        List<S3ObjectSummary> files = s3.listObjects(AmazonConst.BUCKET).getObjectSummaries();
+        List<S3ObjectSummary> files = s3.listObjects(bucket).getObjectSummaries();
         for (S3ObjectSummary list : files) {
-            filesNames.add(AmazonConst.STORAGE_URL + list.getKey());
+            filesNames.add(storageUrl + list.getKey());
         }
         return filesNames;
     }
 
     public void uploadFile(MultipartFile file) throws IOException, VideoException {
         File fileObj = convertMultiPartFileToFile(file);
-        s3.putObject(new PutObjectRequest(AmazonConst.BUCKET, fileObj.getName(), fileObj));
+        s3.putObject(new PutObjectRequest(bucket, fileObj.getName(), fileObj));
         fileObj.delete();
     }
-
     private File convertMultiPartFileToFile(MultipartFile file) throws IOException, VideoException {
         byte[] bytes = file.getBytes();
         File compressedFile = new File(System.currentTimeMillis() + ".mp4");
         System.out.println(file.isEmpty());
         IVCompressor compressor = new IVCompressor();
         byte[] converted = converter(bytes, FilenameUtils.getExtension(file.getOriginalFilename()));
-        IVSize customRes = new IVSize();
-        customRes.setHeight(720);
-        customRes.setWidth(1280);
+//        IVSize customRes = new IVSize();
+//        customRes.setHeight(720);
+//        customRes.setWidth(1280);
         IVVideoAttributes videoAttribute = new IVVideoAttributes();
         videoAttribute.setBitRate(3000000);
-        videoAttribute.setSize(customRes);
+//        videoAttribute.setSize(customRes);
         IVAudioAttributes audioAttribute = new IVAudioAttributes();
         audioAttribute.setBitRate(128000);
         audioAttribute.setChannels(2);
@@ -103,20 +103,18 @@ public class AmazonService {
         boolean supported = false;
         IVCompressor compressor = new IVCompressor();
         List<VideoFormats> videoFormats = new ArrayList<>(EnumSet.allOf(VideoFormats.class));
-        byte[] bytes = new byte[arr.length];
-
-        for (VideoFormats videoFormat : videoFormats) {
+        byte[] bytes;
+        for (VideoFormats videoFormat : ProgressBar.wrap(videoFormats, "Check video format")) {
             if (extension.equals(String.valueOf(videoFormat).toLowerCase())) {
-                System.out.println("Upload file with extension " + extension);
+                System.err.println("Upload file with extension " + extension);
                 supported = true;
             }
         }
         if (supported) {
             bytes = compressor.convertVideoFormat(arr, VideoFormats.valueOf(extension.toUpperCase()), VideoFormats.MP4);
         } else {
-            System.err.println("File extension is unsupported");
+            throw new IllegalArgumentException("File extension is unsupported");
         }
-
         return bytes;
     }
 
