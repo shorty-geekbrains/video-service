@@ -74,7 +74,7 @@ public class AmazonService {
         fileObj.delete();
     }
 
-    private File convertMultiPartFileToFile(MultipartFile file) throws IOException, VideoException {
+    public File convertMultiPartFileToFile(MultipartFile file) throws IOException, VideoException {
         byte[] bytes = file.getBytes();
         File compressedFile = new File(System.currentTimeMillis() + ".mp4");
         System.out.println(file.isEmpty());
@@ -99,7 +99,7 @@ public class AmazonService {
         return compressedFile;
     }
 
-    private byte[] converter(byte[] arr, String extension) throws VideoException {
+    public byte[] converter(byte[] arr, String extension) throws VideoException {
         boolean supported = false;
         IVCompressor compressor = new IVCompressor();
         List<VideoFormats> videoFormats = new ArrayList<>(EnumSet.allOf(VideoFormats.class));
