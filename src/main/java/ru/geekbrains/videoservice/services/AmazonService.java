@@ -1,12 +1,7 @@
 package ru.geekbrains.videoservice.services;
 
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import io.github.techgnious.IVCompressor;
@@ -15,10 +10,11 @@ import io.github.techgnious.dto.IVSize;
 import io.github.techgnious.dto.IVVideoAttributes;
 import io.github.techgnious.dto.VideoFormats;
 import io.github.techgnious.exception.VideoException;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.geekbrains.videoservice.Const.AmazonConst;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,45 +28,28 @@ import java.util.List;
  * 30.04.2022
  */
 @Service
+@RequiredArgsConstructor
 public class AmazonService {
 
-//    @Value("${amazon.access-key}")
-//    private String accessKey;
-//    @Value("${amazon.secret-key}")
-//    private String secretKey;
-//    @Value("${amazon.server-endpoint}")
-//    private String serverEndpoint;
-//    @Value("${amazon.region}")
-//    private String region;
-//    @Value("${amazon.bucket}")
-//    private String bucket;
-//    @Value("${amazon.storage-url")
-//    private String storageUrl;
+    private final AmazonS3 s3;
 
-    AWSCredentials credentials = new BasicAWSCredentials(
-            AmazonConst.ACCESS_KEY,
-            AmazonConst.SECRET_KEY
-    );
-
-    AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-            .withCredentials(new AWSStaticCredentialsProvider(credentials))
-            .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(
-                    AmazonConst.SERVER_ENDPOINT, AmazonConst.REGION)
-            )
-            .build();
+    @Value("${amazon.bucket}")
+    private String bucket;
+    @Value("${amazon.storage-url")
+    private String storageUrl;
 
     public List<String> getAllFiles() {
         List<String> filesNames = new ArrayList<>();
-        List<S3ObjectSummary> files = s3.listObjects(AmazonConst.BUCKET).getObjectSummaries();
+        List<S3ObjectSummary> files = s3.listObjects(bucket).getObjectSummaries();
         for (S3ObjectSummary list : files) {
-            filesNames.add(AmazonConst.STORAGE_URL + list.getKey());
+            filesNames.add(storageUrl + list.getKey());
         }
         return filesNames;
     }
 
     public void uploadFile(MultipartFile file) throws IOException, VideoException {
         File fileObj = convertMultiPartFileToFile(file);
-        s3.putObject(new PutObjectRequest(AmazonConst.BUCKET, fileObj.getName(), fileObj));
+        s3.putObject(new PutObjectRequest(bucket, fileObj.getName(), fileObj));
         fileObj.delete();
     }
 
