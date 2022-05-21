@@ -42,7 +42,7 @@ create table if not exists shorty.video
     client_id           bigint, -- not null
     is_available        boolean not null,
     description         char(255) not null,
-    constraint fk_client foreign key (client_id) references shorty.client ("id"),
+    constraint fk_client1 foreign key (client_id) references shorty.client ("id"),
     constraint fk_rating foreign key (rating_id) references shorty.rating ("id")
 );
 

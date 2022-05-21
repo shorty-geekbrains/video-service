@@ -33,4 +33,4 @@ amazon:
  bucket: shorty
  server-endpoint: storage.yandexcloud.net
  region: ru-central1
- storage-url: https://shorty.storage.yandexcloud.net
+ storage-url: https://shorty.storage.yandexcloud.net/

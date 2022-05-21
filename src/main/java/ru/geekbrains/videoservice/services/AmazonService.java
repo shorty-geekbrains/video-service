@@ -35,7 +35,7 @@ public class AmazonService {
 
     @Value("${amazon.bucket}")
     private String bucket;
-    @Value("${amazon.storage-url")
+    @Value("${amazon.storage-url}")
     private String storageUrl;
 
     public List<String> getAllFiles() {
@@ -59,12 +59,8 @@ public class AmazonService {
         System.out.println(file.isEmpty());
         IVCompressor compressor = new IVCompressor();
         byte[] converted = converter(bytes, FilenameUtils.getExtension(file.getOriginalFilename()));
-        IVSize customRes = new IVSize();
-        customRes.setHeight(720);
-        customRes.setWidth(1280);
         IVVideoAttributes videoAttribute = new IVVideoAttributes();
         videoAttribute.setBitRate(3000000);
-        videoAttribute.setSize(customRes);
         IVAudioAttributes audioAttribute = new IVAudioAttributes();
         audioAttribute.setBitRate(128000);
         audioAttribute.setChannels(2);
