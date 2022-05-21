@@ -18,16 +18,12 @@ import java.util.Set;
 public class VideoRating {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "like_counter")
     private Long likeCounter;
 
-    @Column(name = "dislike_counter")
     private Long dislikeCounter;
 
-    @Column(name = "views_counter")
     private Long viewsCounter;
 }
