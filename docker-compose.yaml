@@ -10,8 +10,8 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgrespass
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-U", "postgres" ]
       interval: 5s
@@ -73,6 +73,24 @@ services:
           - gateway-service
     depends_on:
       - video-service
+
+  client-service:
+    container_name: client-service
+    build:
+      dockerfile: Dockerfile
+    hostname: client-service
+    environment:
+      - SPRING_APPLICATION_NAME=client-service
+      - DATABASE_HOST=data-base
+    image: client-service:latest
+    ports:
+      - '8191:8191'
+    networks:
+      spring-cloud-network:
+        aliases:
+          - client-service
+    depends_on:
+      - data-base
 
 networks:
   spring-cloud-network:
