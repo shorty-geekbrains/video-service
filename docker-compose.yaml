@@ -1,0 +1,97 @@
+version: '3.3'
+
+services:
+
+  data-base:
+    container_name: PostgreSQL
+    hostname: PostgreSQL
+    image: postgres
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-U", "postgres" ]
+      interval: 5s
+      timeout: 1s
+      retries: 2
+    networks:
+      spring-cloud-network:
+        aliases:
+          - data-base
+
+  front-service:
+    container_name: front-service
+    build:
+      dockerfile: Dockerfile
+    hostname: front-service
+    environment:
+      - SPRING_APPLICATION_NAME=front-service
+    image: front-service:latest
+    ports:
+      - '8190:8190'
+    networks:
+      spring-cloud-network:
+        aliases:
+          - front-service
+
+  video-service:
+    container_name: video-service
+    build:
+      dockerfile: Dockerfile
+    hostname: video-service
+    environment:
+      - SPRING_APPLICATION_NAME=video-service
+      - SPRING_PROFILES_ACTIVE=deploy
+      - DATABASE_URI=data-base
+    image: video-service:latest
+    ports:
+      - '8189:8189'
+    networks:
+      spring-cloud-network:
+        aliases:
+          - video-service
+    depends_on:
+      - data-base
+
+  gateway-service:
+    container_name: gateway-service
+    build:
+      dockerfile: Dockerfile
+    hostname: gateway-service
+    environment:
+      - SPRING_APPLICATION_NAME=gateway-service
+      - SPRING_PROFILES_ACTIVE=deploy
+    image: gateway-service:latest
+    ports:
+      - '8188:8188'
+    networks:
+      spring-cloud-network:
+        aliases:
+          - gateway-service
+    depends_on:
+      - video-service
+
+  client-service:
+    container_name: client-service
+    build:
+      dockerfile: Dockerfile
+    hostname: client-service
+    environment:
+      - SPRING_APPLICATION_NAME=client-service
+      - DATABASE_HOST=data-base
+    image: client-service:latest
+    ports:
+      - '8191:8191'
+    networks:
+      spring-cloud-network:
+        aliases:
+          - client-service
+    depends_on:
+      - data-base
+
+networks:
+  spring-cloud-network:
+    driver: bridge
