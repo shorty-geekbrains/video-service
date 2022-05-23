@@ -13,7 +13,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=1234
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-U", "postgres" ]
+      test: [ "CMD", "pg_isready", "-q", "-U", "root" ]
       interval: 5s
       timeout: 1s
       retries: 2
@@ -25,6 +25,7 @@ services:
   front-service:
     container_name: front-service
     build:
+      context: src/main/java
       dockerfile: Dockerfile
     hostname: front-service
     environment:
@@ -40,6 +41,7 @@ services:
   video-service:
     container_name: video-service
     build:
+      context: src/main/java
       dockerfile: Dockerfile
     hostname: video-service
     environment:
@@ -59,6 +61,7 @@ services:
   gateway-service:
     container_name: gateway-service
     build:
+      context: src/main/java
       dockerfile: Dockerfile
     hostname: gateway-service
     environment:
@@ -77,6 +80,7 @@ services:
   client-service:
     container_name: client-service
     build:
+      context: src/main/java
       dockerfile: Dockerfile
     hostname: client-service
     environment:

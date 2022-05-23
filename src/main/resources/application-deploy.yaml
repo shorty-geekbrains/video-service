@@ -6,11 +6,31 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DATABASE_URI}/postgres
-    username: postgres
-    password: postgrespass
+    username: root
+    password: 1234
   jpa:
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL94Dialect
     open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+cloud:
+  aws:
+    region:
+      static: us-east-1
+      auto: false
+    credentials:
+      access-key: YCAJEMwFoI22gEPhxWrnB3O-N
+      secret-key: YCNgEBcZS_g6PWrhWhI2L1bxPfPmKEyx4b_zWQD9
+
+amazon:
+ access-key: YCAJEMwFoI22gEPhxWrnB3O-N
+ secret-key: YCNgEBcZS_g6PWrhWhI2L1bxPfPmKEyx4b_zWQD9
+ bucket: shorty
+ server-endpoint: storage.yandexcloud.net
+ region: ru-central1
+ storage-url: https://shorty.storage.yandexcloud.net/
