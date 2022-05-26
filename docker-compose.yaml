@@ -8,7 +8,7 @@ services:
     image: postgres
     restart: always
     ports:
-      - "5433:5432"
+      - '5433:5432'
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=1234
@@ -24,15 +24,10 @@ services:
 
   front-service:
     container_name: front-service
-    build:
-      context: src/main/java
-      dockerfile: Dockerfile
     hostname: front-service
-    environment:
-      - SPRING_APPLICATION_NAME=front-service
     image: front-service:latest
     ports:
-      - '8190:8190'
+      - '8190:80'
     networks:
       spring-cloud-network:
         aliases:
@@ -40,9 +35,6 @@ services:
 
   video-service:
     container_name: video-service
-    build:
-      context: src/main/java
-      dockerfile: Dockerfile
     hostname: video-service
     environment:
       - SPRING_APPLICATION_NAME=video-service
@@ -60,9 +52,6 @@ services:
 
   gateway-service:
     container_name: gateway-service
-    build:
-      context: src/main/java
-      dockerfile: Dockerfile
     hostname: gateway-service
     environment:
       - SPRING_APPLICATION_NAME=gateway-service
@@ -79,9 +68,6 @@ services:
 
   client-service:
     container_name: client-service
-    build:
-      context: src/main/java
-      dockerfile: Dockerfile
     hostname: client-service
     environment:
       - SPRING_APPLICATION_NAME=client-service

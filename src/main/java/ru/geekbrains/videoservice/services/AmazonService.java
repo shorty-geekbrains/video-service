@@ -43,6 +43,7 @@ public class AmazonService {
         List<S3ObjectSummary> files = s3.listObjects(bucket).getObjectSummaries();
         for (S3ObjectSummary list : files) {
             filesNames.add(storageUrl + list.getKey());
+            filesNames.add(String.valueOf(Math.round(Math.random()*100)));
         }
         return filesNames;
     }
