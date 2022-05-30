@@ -71,7 +71,8 @@ services:
     hostname: client-service
     environment:
       - SPRING_APPLICATION_NAME=client-service
-      - DATABASE_HOST=data-base
+      - SPRING_PROFILES_ACTIVE=deploy
+      - DATABASE_URI=data-base
     image: client-service:latest
     ports:
       - '8191:8191'

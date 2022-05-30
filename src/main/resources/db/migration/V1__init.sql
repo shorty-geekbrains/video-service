@@ -12,9 +12,10 @@ create table if not exists shorty.client
     "name"              char(50) not null,
     role_id             bigint   not null,
     second_name         char(50) not null,
-    age                 int not null,
+    enabled             boolean not null,
+    age                 char(50) not null,
     sex                 boolean not null,
-    "password"          char(50) not null,
+    "password"          char(60) not null,
     photo               char(255) not null,
     constraint fk_role foreign key (role_id) references shorty."role" ("id")
 );
